@@ -44,7 +44,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
       routeStops = locations.sublist(start, end + 1);
       busTop = 20;
       countdown = 30;
-      distanceToNext = 2.0; // reset distance
+      distanceToNext = 2.0;
     });
 
     timer?.cancel();
@@ -60,7 +60,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
             currentStopIndex++;
             busTop = currentStopIndex * 120 + 20;
             countdown = 30;
-            distanceToNext = 2.0; // reset distance for next stop
+            distanceToNext = 2.0;
           });
         } else {
           t.cancel();
@@ -87,6 +87,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
       appBar: AppBar(
         title: const Text("Live Bus Tracking"),
         backgroundColor: Colors.blueAccent,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -99,31 +100,101 @@ class _TrackingScreenState extends State<TrackingScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Select Source:", style: TextStyle(fontWeight: FontWeight.bold)),
-        DropdownButton<String>(
-          value: source,
-          hint: const Text("Choose Source"),
-          items: locations.map((loc) => DropdownMenuItem(value: loc, child: Text(loc))).toList(),
-          onChanged: (val) => setState(() => source = val),
+        // Source card
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.my_location, color: Colors.green, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: source,
+                    hint: const Text("Choose Source"),
+                    underline: const SizedBox(),
+                    items: locations
+                        .map((loc) => DropdownMenuItem(
+                              value: loc,
+                              child: Text(loc, style: const TextStyle(fontSize: 16)),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => source = val),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        const SizedBox(height: 16),
-        const Text("Select Destination:", style: TextStyle(fontWeight: FontWeight.bold)),
-        DropdownButton<String>(
-          value: destination,
-          hint: const Text("Choose Destination"),
-          items: locations.map((loc) => DropdownMenuItem(value: loc, child: Text(loc))).toList(),
-          onChanged: (val) => setState(() => destination = val),
+        const SizedBox(height: 12),
+
+        // Swap button
+        Center(
+          child: IconButton(
+            icon: const Icon(Icons.swap_vert_circle, size: 36, color: Colors.blueAccent),
+            onPressed: () {
+              if (source != null && destination != null) {
+                setState(() {
+                  final temp = source;
+                  source = destination;
+                  destination = temp;
+                });
+              }
+            },
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // Destination card
+        Card(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                const Icon(Icons.location_on, color: Colors.redAccent, size: 28),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: destination,
+                    hint: const Text("Choose Destination"),
+                    underline: const SizedBox(),
+                    items: locations
+                        .map((loc) => DropdownMenuItem(
+                              value: loc,
+                              child: Text(loc, style: const TextStyle(fontSize: 16)),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => destination = val),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 24),
+
+        // Track button
         Center(
-          child: ElevatedButton(
+          child: ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.blueAccent,
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            icon: const Icon(Icons.directions_bus),
+            label: const Text("Track Bus", style: TextStyle(fontSize: 16)),
             onPressed: (source != null &&
                     destination != null &&
                     source != destination &&
                     locations.indexOf(source!) < locations.indexOf(destination!))
                 ? startTracking
                 : null,
-            child: const Text("Track Bus"),
           ),
         ),
       ],
@@ -191,8 +262,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
             top: busTop,
             child: Column(
               children: [
-                const Icon(Icons.directions_bus,
-                    size: 34, color: Colors.redAccent),
+                const Icon(Icons.directions_bus, size: 34, color: Colors.redAccent),
                 if (currentStopIndex < routeStops.length - 1)
                   Container(
                     margin: const EdgeInsets.only(top: 4),
