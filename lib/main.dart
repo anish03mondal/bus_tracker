@@ -25,7 +25,7 @@ class SmartBusApp extends StatelessWidget {
         "/tracking": (context) => const TrackingScreen(),
         "/sms": (context) => const SmsScreen(),
         "/ticket": (context) => const TicketScreen(),
-        "/seat": (context) => const SeatScreen(),
+        "/seat": (context) =>  SeatScreen(),
         "/alert": (context) => const AlertScreen(),
       },
     );

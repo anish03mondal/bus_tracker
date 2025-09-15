@@ -17,53 +17,55 @@ class HomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 2,
-          crossAxisSpacing: 16,
-          mainAxisSpacing: 16,
-          children: [
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const TrackingScreen(),
-                  ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 1000), // 💻 max width
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                int crossAxisCount = 2;
+
+                if (constraints.maxWidth > 1200) {
+                  crossAxisCount = 4; // Desktop
+                } else if (constraints.maxWidth > 800) {
+                  crossAxisCount = 3; // Tablet
+                } else {
+                  crossAxisCount = 2; // Mobile
+                }
+
+                return GridView.count(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  children: [
+                    _buildFeatureCard(
+                      context,
+                      "🚌",
+                      "Live Tracking",
+                      Colors.blueAccent,
+                      () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TrackingScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildFeatureCard(context, "📩", "SMS/USSD", Colors.green,
+                        () => Navigator.pushNamed(context, "/sms")),
+                    _buildFeatureCard(context, "💳", "Smart Ticketing",
+                        Colors.orange, () => Navigator.pushNamed(context, "/ticket")),
+                    _buildFeatureCard(context, "📊", "Seat Availability",
+                        Colors.purple, () => Navigator.pushNamed(context, "/seat")),
+                    _buildFeatureCard(context, "🚨", "Emergency Alert", Colors.red,
+                        () => Navigator.pushNamed(context, "/alert")),
+                  ],
                 );
               },
-              child: _buildFeatureCard(
-                context,
-                "🚌",
-                "Live Tracking",
-                Colors.blueAccent,
-                "/tracking",
-              ),
             ),
-            _buildFeatureCard(context, "📩", "SMS/USSD", Colors.green, "/sms"),
-            _buildFeatureCard(
-              context,
-              "💳",
-              "Smart Ticketing",
-              Colors.orange,
-              "/ticket",
-            ),
-            _buildFeatureCard(
-              context,
-              "📊",
-              "Seat Availability",
-              Colors.purple,
-              "/seat",
-            ),
-            _buildFeatureCard(
-              context,
-              "🚨",
-              "Emergency Alert",
-              Colors.red,
-              "/alert",
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -74,43 +76,45 @@ class HomeScreen extends StatelessWidget {
     String emoji,
     String title,
     Color color,
-    String route,
+    VoidCallback onTap,
   ) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed(context, route);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color.withOpacity(0.8), color],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.3),
-              blurRadius: 10,
-              offset: const Offset(4, 6),
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [color.withOpacity(0.85), color],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 40)),
-              const SizedBox(height: 12),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+            borderRadius: BorderRadius.circular(18),
+            boxShadow: [
+              BoxShadow(
+                color: color.withOpacity(0.3),
+                blurRadius: 10,
+                offset: const Offset(4, 6),
               ),
             ],
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 48)),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

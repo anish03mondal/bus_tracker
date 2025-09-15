@@ -21,7 +21,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
     "Market Road",
     "University",
     "Railway Station",
-    "Bus Terminal"
+    "Bus Terminal",
   ];
 
   Timer? timer;
@@ -42,7 +42,7 @@ class _TrackingScreenState extends State<TrackingScreen> {
       showRoute = true;
       currentStopIndex = 0;
       routeStops = locations.sublist(start, end + 1);
-      busTop = 20;
+      busTop = 20; // initial bus position
       countdown = 30;
       distanceToNext = 2.0;
     });
@@ -53,12 +53,17 @@ class _TrackingScreenState extends State<TrackingScreen> {
         setState(() {
           countdown--;
           distanceToNext = (distanceToNext - (2.0 / 30)).clamp(0.0, 2.0);
+
+          // 👇 Jump bus to middle when countdown hits 15 sec (halfway)
+          if (countdown == 15) {
+            busTop = currentStopIndex * 120 + 20 + 60; // mid position
+          }
         });
       } else {
         if (currentStopIndex < routeStops.length - 1) {
           setState(() {
             currentStopIndex++;
-            busTop = currentStopIndex * 120 + 20;
+            busTop = currentStopIndex * 120 + 20; // snap to next stop
             countdown = 30;
             distanceToNext = 2.0;
           });
@@ -102,7 +107,9 @@ class _TrackingScreenState extends State<TrackingScreen> {
       children: [
         // Source card
         Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 4,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -117,10 +124,15 @@ class _TrackingScreenState extends State<TrackingScreen> {
                     hint: const Text("Choose Source"),
                     underline: const SizedBox(),
                     items: locations
-                        .map((loc) => DropdownMenuItem(
-                              value: loc,
-                              child: Text(loc, style: const TextStyle(fontSize: 16)),
-                            ))
+                        .map(
+                          (loc) => DropdownMenuItem(
+                            value: loc,
+                            child: Text(
+                              loc,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        )
                         .toList(),
                     onChanged: (val) => setState(() => source = val),
                   ),
@@ -134,7 +146,11 @@ class _TrackingScreenState extends State<TrackingScreen> {
         // Swap button
         Center(
           child: IconButton(
-            icon: const Icon(Icons.swap_vert_circle, size: 36, color: Colors.blueAccent),
+            icon: const Icon(
+              Icons.swap_vert_circle,
+              size: 36,
+              color: Colors.blueAccent,
+            ),
             onPressed: () {
               if (source != null && destination != null) {
                 setState(() {
@@ -150,13 +166,19 @@ class _TrackingScreenState extends State<TrackingScreen> {
 
         // Destination card
         Card(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           elevation: 4,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
               children: [
-                const Icon(Icons.location_on, color: Colors.redAccent, size: 28),
+                const Icon(
+                  Icons.location_on,
+                  color: Colors.redAccent,
+                  size: 28,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButton<String>(
@@ -165,10 +187,15 @@ class _TrackingScreenState extends State<TrackingScreen> {
                     hint: const Text("Choose Destination"),
                     underline: const SizedBox(),
                     items: locations
-                        .map((loc) => DropdownMenuItem(
-                              value: loc,
-                              child: Text(loc, style: const TextStyle(fontSize: 16)),
-                            ))
+                        .map(
+                          (loc) => DropdownMenuItem(
+                            value: loc,
+                            child: Text(
+                              loc,
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        )
                         .toList(),
                     onChanged: (val) => setState(() => destination = val),
                   ),
@@ -185,16 +212,20 @@ class _TrackingScreenState extends State<TrackingScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blueAccent,
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             icon: const Icon(Icons.directions_bus),
             label: const Text("Track Bus", style: TextStyle(fontSize: 16)),
-            onPressed: (source != null &&
-                    destination != null &&
-                    source != destination &&
-                    locations.indexOf(source!) < locations.indexOf(destination!))
-                ? startTracking
-                : null,
+            onPressed:
+                (source != null &&
+                        destination != null &&
+                        source != destination &&
+                        locations.indexOf(source!) <
+                            locations.indexOf(destination!))
+                    ? startTracking
+                    : null,
           ),
         ),
       ],
@@ -244,7 +275,9 @@ class _TrackingScreenState extends State<TrackingScreen> {
                           fontSize: 16,
                           color: reached
                               ? Colors.black
-                              : (isNextStop ? Colors.green.shade800 : Colors.grey),
+                              : (isNextStop
+                                  ? Colors.green.shade800
+                                  : Colors.grey),
                         ),
                       ),
                     ),
@@ -261,12 +294,19 @@ class _TrackingScreenState extends State<TrackingScreen> {
             left: -5,
             top: busTop,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start, // align left
               children: [
-                const Icon(Icons.directions_bus, size: 34, color: Colors.redAccent),
+                const Icon(
+                  Icons.directions_bus,
+                  size: 34,
+                  color: Colors.redAccent,
+                ),
+
                 if (currentStopIndex < routeStops.length - 1)
                   Container(
-                    margin: const EdgeInsets.only(top: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    margin: const EdgeInsets.only(top: 6, left: 40),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.black87,
                       borderRadius: BorderRadius.circular(8),
